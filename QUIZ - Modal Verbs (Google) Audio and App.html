@@ -1,0 +1,251 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Modal Verbs - Complete Quiz</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="manifest" href="manifest.json">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+    }
+    .question {
+      font-size: 20px;
+      margin-bottom: 15px;
+    }
+    .options button {
+      display: block;
+      margin: 10px 0;
+      padding: 12px;
+      width: 100%;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 6px;
+      background: #e7e7e7;
+      transition: background 0.3s;
+    }
+    .options button:hover {
+      background: #d5d5d5;
+    }
+    .correct {
+      color: green;
+      font-weight: bold;
+      font-size: 22px;
+    }
+    .incorrect {
+      color: red;
+      font-weight: bold;
+      font-size: 22px;
+    }
+    .explanation {
+      margin-top: 10px;
+      background: #f0f8ff;
+      padding: 10px;
+      border-left: 5px solid #007acc;
+      border-radius: 5px;
+    }
+    .next-btn, .restart-btn, .download-btn {
+      padding: 12px 20px;
+      background-color: #007acc;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+    .next-btn:hover, .restart-btn:hover, .download-btn:hover {
+      background-color: #005f99;
+    }
+    .hidden {
+      display: none;
+    }
+    .score {
+      text-align: center;
+      font-size: 24px;
+      margin-top: 30px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Modal Verbs - Interactive Quiz</h1>
+
+    <div id="name-input">
+      <p>Enter your name to begin:</p>
+      <input type="text" id="userName" placeholder="Your name">
+      <button onclick="startQuiz()">Start Quiz</button>
+    </div>
+
+    <div id="quiz-container" class="hidden">
+      <div class="question" id="question">Loading question...</div>
+      <div class="options" id="options"></div>
+      <div id="feedback"></div>
+      <button class="next-btn hidden" id="nextBtn">Next</button>
+    </div>
+
+    <div id="result" class="hidden">
+      <div class="score" id="score-container"></div>
+      <button class="restart-btn" onclick="restartQuiz()">Restart</button>
+      <button class="download-btn" onclick="downloadCertificate()">🎓 Download Certificate</button>
+    </div>
+  </div>
+
+  <script>
+    const quizData = [
+      { question: "Which modal verb is used to give informal permission?", options: ["Must", "Can", "Might", "Shall"], correct: "Can", explanation: `"Can" is informal and common in casual conversations.` },
+      { question: "Which modal verb expresses personal obligation?", options: ["Have to", "Must", "Might", "Could"], correct: "Must", explanation: `"Must" shows internal or personal necessity.` },
+      { question: "Which modal verb is typically used for advice?", options: ["Should", "Will", "Can", "May"], correct: "Should", explanation: `"Should" is common for giving advice.` },
+      { question: "How do you express general ability in the past?", options: ["Can", "Must", "Could", "Will"], correct: "Could", explanation: `"Could" expresses past general ability.` },
+      { question: "What modal shows high certainty based on evidence?", options: ["May", "Must", "Should", "Could"], correct: "Must", explanation: `"Must" is used for logical deductions (e.g., She must be tired).` },
+      { question: "Which modal expresses possibility with uncertainty?", options: ["Might", "Shall", "Must", "Will"], correct: "Might", explanation: `"Might" shows possible but uncertain outcomes.` },
+      { question: "Which is the most formal way to ask for permission?", options: ["Could I", "May I", "Can I", "Might I"], correct: "May I", explanation: `"May I" is polite and formal; ideal for professional settings.` },
+      { question: "How do you express future ability?", options: ["Can", "Could", "Was able to", "Will be able to"], correct: "Will be able to", explanation: `"Will be able to" expresses ability in the future.` },
+      { question: "Which modal verb expresses past obligation?", options: ["Must", "Should", "Had to", "Have to"], correct: "Had to", explanation: `"Had to" is used for obligations that existed in the past.` },
+      { question: "How do you express advice in the past?", options: ["Should have", "Must", "May have", "Can have"], correct: "Should have", explanation: `"Should have" is used for advice about past actions (e.g., You should have studied).` },
+      { question: "How do you express deduction in the past?", options: ["Might", "Must", "Must have", "Should"], correct: "Must have", explanation: `"Must have" shows certainty about a past action based on evidence.` },
+      { question: "How do you express possibility in the past?", options: ["Might have", "Must", "Shall", "Could"], correct: "Might have", explanation: `"Might have" = past possibility with uncertainty.` },
+      { question: "Which is correct to express a rule-based obligation?", options: ["Should", "Have to", "Might", "Could"], correct: "Have to", explanation: `"Have to" indicates external obligation, such as rules or laws.` },
+      { question: "What expresses lack of necessity in the present?", options: ["Don’t have to", "Mustn’t", "Might not", "Shouldn’t"], correct: "Don’t have to", explanation: `"Don’t have to" means it’s not necessary (e.g., You don’t have to come early).` },
+      { question: "How do you express future obligation?", options: ["Will must", "Will have to", "Might have to", "Should"], correct: "Will have to", explanation: `"Will have to" is used for obligation in the future.` },
+      { question: "How do you express ability in a specific past situation?", options: ["Could", "Must", "Was able to", "Should have"], correct: "Was able to", explanation: `"Was able to" is used for specific successful actions in the past.` }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let userName = "";
+
+    function speakText(text) {
+      if ('speechSynthesis' in window) {
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'en-US';
+        utter.rate = 1;
+        utter.pitch = 1;
+        speechSynthesis.speak(utter);
+      }
+    }
+
+    function startQuiz() {
+      const name = document.getElementById("userName").value.trim();
+      if (!name) {
+        alert("Please enter your name.");
+        return;
+      }
+      userName = name;
+      document.getElementById("name-input").classList.add("hidden");
+      document.getElementById("quiz-container").classList.remove("hidden");
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      const q = quizData[currentQuestion];
+      const questionText = `Question ${currentQuestion + 1}: ${q.question}`;
+      document.getElementById("question").textContent = `(${currentQuestion + 1}/${quizData.length}) ${q.question}`;
+      document.getElementById("options").innerHTML = "";
+      document.getElementById("feedback").innerHTML = "";
+      document.getElementById("nextBtn").classList.add("hidden");
+
+      speakText(questionText);
+
+      q.options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.textContent = option;
+        btn.onclick = () => selectAnswer(option, q.correct, q.explanation);
+        document.getElementById("options").appendChild(btn);
+      });
+
+      const readBtn = document.createElement("button");
+      readBtn.textContent = "🔊 Read Aloud";
+      readBtn.onclick = () => speakText(questionText);
+      readBtn.style.marginTop = "10px";
+      readBtn.style.background = "#4CAF50";
+      readBtn.style.color = "white";
+      readBtn.style.fontWeight = "bold";
+      document.getElementById("options").appendChild(readBtn);
+    }
+
+    function selectAnswer(selected, correct, explanation) {
+      document.querySelectorAll(".options button").forEach(btn => btn.disabled = true);
+      const feedback = document.getElementById("feedback");
+
+      if (selected === correct) {
+        score++;
+        feedback.innerHTML = `<div class="correct">✔ Correct!</div><div class="explanation">${explanation}</div>`;
+      } else {
+        feedback.innerHTML = `<div class="incorrect">✘ Wrong!</div><div class="explanation">${explanation}</div>`;
+      }
+
+      document.getElementById("nextBtn").classList.remove("hidden");
+    }
+
+    document.getElementById("nextBtn").onclick = () => {
+      currentQuestion++;
+      if (currentQuestion < quizData.length) {
+        loadQuestion();
+      } else {
+        finishQuiz();
+      }
+    };
+
+    function finishQuiz() {
+      document.getElementById("quiz-container").classList.add("hidden");
+      document.getElementById("result").classList.remove("hidden");
+      const percent = Math.round((score / quizData.length) * 100);
+      document.getElementById("score-container").innerHTML = `${userName}, you scored ${score}/${quizData.length} (${percent}%)`;
+    }
+
+    function restartQuiz() {
+      currentQuestion = 0;
+      score = 0;
+      document.getElementById("result").classList.add("hidden");
+      document.getElementById("quiz-container").classList.remove("hidden");
+      loadQuestion();
+    }
+
+    function downloadCertificate() {
+      const date = new Date().toLocaleDateString();
+      const percent = Math.round((score / quizData.length) * 100);
+      const text = `
+CERTIFICATE OF COMPLETION
+
+This certifies that ${userName}
+has successfully completed the Modal Verbs Quiz.
+
+Score: ${score}/${quizData.length} (${percent}%)
+Date: ${date}
+      `.trim();
+
+      const blob = new Blob([text], { type: 'text/plain' });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `ModalVerbs_Certificate_${userName}.txt`;
+      link.click();
+    }
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js');
+    }
+  </script>
+</body>
+</html>
